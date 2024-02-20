@@ -1,27 +1,27 @@
 
 # Welcome to this course on ChatGPT Prompt Engineering for Developers.
  
-- ### A lot of that has been focused on the chatGPT web user interface, which many people are using to do specific and often one-off tasks. 
+- A lot of that has been focused on the chatGPT web user interface, which many people are using to do specific and often one-off tasks. 
 
-- ### But, the power of LLMs, large language models, as a developer tool, that is using API calls to LLMs to quickly build software applications is still very underappreciated.
+- But, the power of LLMs, large language models, as a developer tool, that is using API calls to LLMs to quickly build software applications is still very underappreciated.
 
-- ### In this course, we'll share with you some of the possibilities for what you can do, as well as best practices for how you can do them. 
+- In this course, we'll share with you some of the possibilities for what you can do, as well as best practices for how you can do them. 
 
-- ### First, you'll learn some prompting best practices for software development, then we'll cover some common use cases, summarizing, inferring, transforming, expanding, and then you'll build a chatbot using an LLM. We hope that this will spark your imagination about new applications that you can build. 
+- First, you'll learn some prompting best practices for software development, then we'll cover some common use cases, summarizing, inferring, transforming, expanding, and then you'll build a chatbot using an LLM. We hope that this will spark your imagination about new applications that you can build. 
 
-- ### In the development of large language models or LLMs, there have been broadly two types of LLMs, which I'm going to refer to as base LLMs and instruction-tuned LLMs. 
+- In the development of large language models or LLMs, there have been broadly two types of LLMs, which I'm going to refer to as base LLMs and instruction-tuned LLMs. 
 
-- ### Base LLM has been trained to predict the next word based on text training data, often trained on a large amount of data from the internet and other sources to figure out what's the next most likely word to follow. So, for example, if you were to prompt us once upon a time there was a unicorn, it may complete this, that is it may predict the next several words are that live in a magical forest with all unicorn friends. But if you were to prompt us with what is the capital of France, then based on what articles on the internet might have, it's quite possible that the base LLM will complete this with what is France's largest city, what is France's population and so on, because articles on the internet could quite plausibly be lists of quiz questions about the country of France. 
+- Base LLM has been trained to predict the next word based on text training data, often trained on a large amount of data from the internet and other sources to figure out what's the next most likely word to follow. So, for example, if you were to prompt us once upon a time there was a unicorn, it may complete this, that is it may predict the next several words are that live in a magical forest with all unicorn friends. But if you were to prompt us with what is the capital of France, then based on what articles on the internet might have, it's quite possible that the base LLM will complete this with what is France's largest city, what is France's population and so on, because articles on the internet could quite plausibly be lists of quiz questions about the country of France. 
 
-- ### Instruction-tuned LLM, which is where a lot of momentum of LLM research and practice has been going, an instruction-tuned LLM has been trained to follow instructions. So, if you were to ask it what is the capital of France, it's much more likely to output something like, the capital of France is Paris. So the way that instruction-tuned LLMs are typically trained is you start off with a base LLM that's been trained on a huge amount of text data and further train it, further fine-tune it with inputs and outputs that are instructions and good attempts to follow those instructions, and then often further refine using a technique called RLHF, reinforcement learning from human feedback, to make the system better able to be helpful and follow instructions. 
+- Instruction-tuned LLM, which is where a lot of momentum of LLM research and practice has been going, an instruction-tuned LLM has been trained to follow instructions. So, if you were to ask it what is the capital of France, it's much more likely to output something like, the capital of France is Paris. So the way that instruction-tuned LLMs are typically trained is you start off with a base LLM that's been trained on a huge amount of text data and further train it, further fine-tune it with inputs and outputs that are instructions and good attempts to follow those instructions, and then often further refine using a technique called RLHF, reinforcement learning from human feedback, to make the system better able to be helpful and follow instructions. 
 
-- ### Because instruction-tuned LLMs have been trained to be helpful, honest, and harmless, so for example, they are less likely to output problematic text such as toxic outputs compared to base LLM, a lot of the practical usage scenarios have been shifting toward instruction-tuned LLMs.Some of the best practices you find on the internet may be more suited for a base LLM, but for most practical applications today, we would recommend most people instead focus on instruction-tuned LLMs which are easier to use and also, because of the work of OpenAI and other LLM companies becoming safer and more aligned. 
+- Because instruction-tuned LLMs have been trained to be helpful, honest, and harmless, so for example, they are less likely to output problematic text such as toxic outputs compared to base LLM, a lot of the practical usage scenarios have been shifting toward instruction-tuned LLMs.Some of the best practices you find on the internet may be more suited for a base LLM, but for most practical applications today, we would recommend most people instead focus on instruction-tuned LLMs which are easier to use and also, because of the work of OpenAI and other LLM companies becoming safer and more aligned. 
 
 
 &nbsp;
 
-# Guidelines for Prompting
-## In this lesson, you'll practice two prompting principles and their related tactics in order to write effective prompts for large language models.
+# Lesson 1 - Guidelines for Prompting
+ In this lesson, you'll practice two prompting principles and their related tactics in order to write effective prompts for large language models.
 
 ## Setup
 #### Load the API key and relevant Python libaries.
@@ -406,3 +406,214 @@ openai.api_key = "sk-..."
 #### A note about the backslash
 - In the course, we are using a backslash `\` to make the text fit on the screen without inserting newline '\n' characters.
 - GPT-3 isn't really affected whether you insert newline characters or not.  But when working with LLMs in general, you may consider whether newline characters in your prompt may affect the model's performance.
+
+&nbsp;
+
+# Lesson 2 - Iterative Prompt Development
+In this lesson, you'll iteratively analyze and refine your prompts to generate marketing copy from a product fact sheet.
+
+## Setup
+
+```python
+import openai
+import os
+
+from dotenv import load_dotenv, find_dotenv
+_ = load_dotenv(find_dotenv()) # read local .env file
+
+openai.api_key  = os.getenv('OPENAI_API_KEY')
+```
+```python
+def get_completion(prompt, model="gpt-3.5-turbo"):
+    messages = [{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        temperature=0, # this is the degree of randomness of the model's output
+    )
+    return response.choices[0].message["content"]
+```
+
+**Note**: In June 2023, OpenAI updated gpt-3.5-turbo. The results you see in the notebook may be slightly different than those in the video. Some of the prompts have also been slightly modified to product the desired results.
+
+## Generate a marketing product description from a product fact sheet
+
+```python
+fact_sheet_chair = """
+OVERVIEW
+- Part of a beautiful family of mid-century inspired office furniture, 
+including filing cabinets, desks, bookcases, meeting tables, and more.
+- Several options of shell color and base finishes.
+- Available with plastic back and front upholstery (SWC-100) 
+or full upholstery (SWC-110) in 10 fabric and 6 leather options.
+- Base finish options are: stainless steel, matte black, 
+gloss white, or chrome.
+- Chair is available with or without armrests.
+- Suitable for home or business settings.
+- Qualified for contract use.
+
+CONSTRUCTION
+- 5-wheel plastic coated aluminum base.
+- Pneumatic chair adjust for easy raise/lower action.
+
+DIMENSIONS
+- WIDTH 53 CM | 20.87”
+- DEPTH 51 CM | 20.08”
+- HEIGHT 80 CM | 31.50”
+- SEAT HEIGHT 44 CM | 17.32”
+- SEAT DEPTH 41 CM | 16.14”
+
+OPTIONS
+- Soft or hard-floor caster options.
+- Two choices of seat foam densities: 
+ medium (1.8 lb/ft3) or high (2.8 lb/ft3)
+- Armless or 8 position PU armrests 
+
+MATERIALS
+SHELL BASE GLIDER
+- Cast Aluminum with modified nylon PA6/PA66 coating.
+- Shell thickness: 10 mm.
+SEAT
+- HD36 foam
+
+COUNTRY OF ORIGIN
+- Italy
+"""
+```
+```python
+prompt = f"""
+Your task is to help a marketing team create a 
+description for a retail website of a product based 
+on a technical fact sheet.
+
+Write a product description based on the information 
+provided in the technical specifications delimited by 
+triple backticks.
+
+Technical specifications: ```{fact_sheet_chair}```
+"""
+response = get_completion(prompt)
+print(response)
+```
+
+## Issue 1: The text is too long 
+- Limit the number of words/sentences/characters.
+
+```python
+prompt = f"""
+Your task is to help a marketing team create a 
+description for a retail website of a product based 
+on a technical fact sheet.
+
+Write a product description based on the information 
+provided in the technical specifications delimited by 
+triple backticks.
+
+Use at most 50 words.
+
+Technical specifications: ```{fact_sheet_chair}```
+"""
+response = get_completion(prompt)
+print(response)
+```
+```python
+len(response.split())
+```
+
+## Issue 2. Text focuses on the wrong details
+- Ask it to focus on the aspects that are relevant to the intended audience.
+
+```python
+prompt = f"""
+Your task is to help a marketing team create a 
+description for a retail website of a product based 
+on a technical fact sheet.
+
+Write a product description based on the information 
+provided in the technical specifications delimited by 
+triple backticks.
+
+The description is intended for furniture retailers, 
+so should be technical in nature and focus on the 
+materials the product is constructed from.
+
+Use at most 50 words.
+
+Technical specifications: ```{fact_sheet_chair}```
+"""
+response = get_completion(prompt)
+print(response)
+```
+```python
+prompt = f"""
+Your task is to help a marketing team create a 
+description for a retail website of a product based 
+on a technical fact sheet.
+
+Write a product description based on the information 
+provided in the technical specifications delimited by 
+triple backticks.
+
+The description is intended for furniture retailers, 
+so should be technical in nature and focus on the 
+materials the product is constructed from.
+
+At the end of the description, include every 7-character 
+Product ID in the technical specification.
+
+Use at most 50 words.
+
+Technical specifications: ```{fact_sheet_chair}```
+"""
+response = get_completion(prompt)
+print(response)
+```
+
+## Issue 3. Description needs a table of dimensions
+- Ask it to extract information and organize it in a table.
+
+```python
+prompt = f"""
+Your task is to help a marketing team create a 
+description for a retail website of a product based 
+on a technical fact sheet.
+
+Write a product description based on the information 
+provided in the technical specifications delimited by 
+triple backticks.
+
+The description is intended for furniture retailers, 
+so should be technical in nature and focus on the 
+materials the product is constructed from.
+
+At the end of the description, include every 7-character 
+Product ID in the technical specification.
+
+After the description, include a table that gives the 
+product's dimensions. The table should have two columns.
+In the first column include the name of the dimension. 
+In the second column include the measurements in inches only.
+
+Give the table the title 'Product Dimensions'.
+
+Format everything as HTML that can be used in a website. 
+Place the description in a <div> element.
+
+Technical specifications: ```{fact_sheet_chair}```
+"""
+
+response = get_completion(prompt)
+print(response)
+```
+
+## Load Python libraries to view HTML
+
+```python
+from IPython.display import display, HTML
+
+display(HTML(response))
+```
+
+## Try experimenting on your own!
+
+
